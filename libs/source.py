@@ -5,6 +5,7 @@ from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 import httpx  # pip install httpx
+from urllib.parse import unquote
 from lxml import etree  # pip install lxml
 
 from .rsa import RSA  # 外部文件
@@ -174,6 +175,7 @@ class ZWYT(object):
 
         url = f"""{re.findall('service=(.*)', url)[0]}?ticket={ticket}"""
         location = self.rr.get(url=url).headers.get('Location')
+        location = unquote(location)
 
         unitoken = re.findall('uniToken=(.*)', str(location))[0]  # 获取unitoken
         uuid = re.findall('uuid=(.*?)&', str(location))[0]  # 获取 uuid
