@@ -1,7 +1,6 @@
 """
 预约
 """
-import os
 from libs.info import infos
 from libs.source import ZWYT
 
@@ -16,5 +15,6 @@ if __name__ == '__main__':
             yy.reserve(stu['devName'])
         except Exception as e:
             print(e)
-            yy.pushplus(f"{stu['name']} {stu['devName']} 预约失败", e)
+            if stu['pushplus']:
+                yy.pushplus(f"{stu['name']} {stu['devName']} 预约失败", e)
             continue
