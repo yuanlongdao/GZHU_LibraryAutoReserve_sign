@@ -51,8 +51,16 @@ class ZWYT(object):
         # 初始化请求连接对象
         self.rr = httpx.Client()
 
-    # pushplus（ps：整合下面那个的时候记得把这个也放进去XD）
+    # pushplus 推送消息到微信
     def pushplus(self, title, content):
+        """
+        pushplus 推送消息到微信
+        Args:
+            title: 标题
+            content: 消息内容
+
+        Returns: 无
+        """
         params = {
             'token': self.pushplus_token,
             "title": title,
