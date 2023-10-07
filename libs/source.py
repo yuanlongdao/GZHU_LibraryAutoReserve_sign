@@ -3,34 +3,30 @@ import re
 import typing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-from urllib.parse import unquote
 
-import httpx            # pip install httpx
+import httpx  # pip install httpx
 from lxml import etree  # pip install lxml
 
-from .rsa import RSA    # 外部文件
+from .rsa import RSA  # 外部文件
 
 
 class ZWYT(object):
-    def __init__(self, name, username, password, periods, pushplus_token):
-        self.resvDev = None                     # 座位编号
+    def __init__(self, name, username, password):
+        self.resvDev = None  # 座位编号
         self.roomId = None
-        self.cookies = {'ic-cookie': ''}        # 保存登录用的 cookie
-        self.name = name                        # 名字
-        self.username = str(username)           # 学号
-        self.password = str(password)           # 密码
-        self.periods = periods                  # 预约时间段
-        self.pushplus_token = pushplus_token    # pushplus的token
+        self.cookies = {'ic-cookie': ''}  # 保存登录用的 cookie
+        self.name = name  # 名字
+        self.username = str(username)  # 学号
+        self.password = str(password)  # 密码
 
         # url接口
         self.urls = {
-            'login_url': '',                # 登录
-            'reserve': 'http://libbooking.gzhu.edu.cn/ic-web/reserve',          # 预约
-            'seatmenu': 'http://libbooking.gzhu.edu.cn/ic-web/seatMenu',        # 获取 roomId
+            'login_url': '',  # 登录
+            'reserve': 'http://libbooking.gzhu.edu.cn/ic-web/reserve',  # 预约
+            'seatmenu': 'http://libbooking.gzhu.edu.cn/ic-web/seatMenu',  # 获取 roomId
             'findaddress': 'http://libbooking.gzhu.edu.cn/ic-web/auth/address',
             'get_location': 'http://libbooking.gzhu.edu.cn/authcenter/toLoginPage',
-            'userinfo': 'http://libbooking.gzhu.edu.cn/ic-web/auth/userInfo',   # 获取用户信息
-            'pushplus': 'http://www.pushplus.plus/send'                         # pushplus
+            'userinfo': 'http://libbooking.gzhu.edu.cn/ic-web/auth/userInfo'  # 获取用户信息
         }
 
         # xpath 匹配规则
@@ -52,15 +48,6 @@ class ZWYT(object):
 
         # 初始化请求连接对象
         self.rr = httpx.Client()
-
-    # pushplus（ps：整合下面那个的时候记得把这个也放进去XD）
-    def pushplus(self, title, content):
-        params = {
-            'token' : self.pushplus_token,
-            "title" : title,
-            "content" : content
-        }
-        self.rr.get(url=self.urls['pushplus'],  params=params)
 
     # TODO: 整理请求为一个函数
     def get_response(self, url, method, params, headers, data):
@@ -103,10 +90,10 @@ class ZWYT(object):
         """
         resvDev = None
         filename = devName.strip().split('-')[0]  # 移除传入的座位名头尾的空格后再分割传入的座位名称
-        
+
         # 预约的是琴房
         if filename[0] == 'M':
-            json_path = Path().cwd() / 'json/琴房.json'         # 准备打开的 json 文件的路径
+            json_path = Path().cwd() / 'json/琴房.json'  # 准备打开的 json 文件的路径
         else:
             json_path = Path().cwd() / f'json/{filename}.json'  # 准备打开的 json 文件的路径
 
@@ -120,13 +107,12 @@ class ZWYT(object):
         # 遍历获取对应座位的 devId
         for i in json_data.get('data'):
             if i.get('devName') == devName:
-                if tag == 'reserve':    # 预约--去json文件获取resvId
+                if tag == 'reserve':  # 预约--去json文件获取resvId
                     resvDev = i.get('devId')
-                elif tag == 'sign':     # 签到--去json文件获取devSn
+                elif tag == 'sign':  # 签到--去json文件获取devSn
                     resvDev = i.get('devSn')
 
         return resvDev
-
 
     # 获取用户 appAccNo
     def get_person_appAccNo(self):
@@ -168,9 +154,9 @@ class ZWYT(object):
 
         url = f"""{re.findall('service=(.*)', url)[0]}?ticket={ticket}"""
         location = self.rr.get(url=url).headers.get('Location')
-        decoded_url = unquote(location)
-        unitoken = re.findall('uniToken=(.*)', str(decoded_url))[0]  # 获取unitoken
-        uuid = re.findall('uuid=(.*?)&', str(decoded_url))[0]  # 获取 uuid
+
+        unitoken = re.findall('uniToken=(.*)', str(location))[0]  # 获取unitoken
+        uuid = re.findall('uuid=(.*?)&', str(location))[0]  # 获取 uuid
         params = {
             "manager": "false",
             "uuid": uuid,
@@ -216,11 +202,18 @@ class ZWYT(object):
         功能: 返回预约的日期和时间
         return: 返回一个列表, 列表里面每个元素是一个字典, 字典里面有每天的 start(开始时间) 和 end(结束时间)
         """
+        # 预约时间段
+        hours = (
+            ('8:30:00', '12:30:00'),
+            ('12:30:00', '16:30:00'),
+            ('16:30:00', '20:30:00'),
+            ('20:30:00', '21:45:00')
+        )
 
-        utc_now = datetime.utcnow().replace(tzinfo=timezone.utc)     # UTC 时间
-        SHA_TZ = timezone(timedelta(hours=8), name='Asia/Shanghai',) # 上海市区, 也就是东八区，比 UTC 快 8 个小时
-        
-        current_day = utc_now.astimezone(SHA_TZ)    # 今天的日期： 北京时间
+        utc_now = datetime.utcnow().replace(tzinfo=timezone.utc)  # UTC 时间
+        SHA_TZ = timezone(timedelta(hours=8), name='Asia/Shanghai', )  # 上海市区, 也就是东八区，比 UTC 快 8 个小时
+
+        current_day = utc_now.astimezone(SHA_TZ)  # 今天的日期： 北京时间
         next_day = current_day + timedelta(days=1)  # 明天的日期
 
         # 获取 年、月、日
@@ -231,18 +224,18 @@ class ZWYT(object):
         reserve_days = []
 
         # 添加起始和结束时间
-        for period in self.periods:
+        for hour in hours:
             reserve_days.extend([
                 {
-                    'start': f"{c_year}-{c_month}-{c_day} {period[0]}",   # 今天--起始时间
-                    'end': f"{c_year}-{c_month}-{c_day} {period[-1]}"     # 今天--结束时间
+                    'start': f"{c_year}-{c_month}-{c_day} {hour[0]}",  # 今天--起始时间
+                    'end': f"{c_year}-{c_month}-{c_day} {hour[-1]}"  # 今天--结束时间
                 },
                 {
-                    'start': f"{n_year}-{n_month}-{n_day} {period[0]}",   # 明天--起始时间
-                    'end': f"{n_year}-{n_month}-{n_day} {period[-1]}"     # 明天--结束时间
+                    'start': f"{n_year}-{n_month}-{n_day} {hour[0]}",  # 明天--起始时间
+                    'end': f"{n_year}-{n_month}-{n_day} {hour[-1]}"  # 明天--结束时间
                 }
             ])
-        
+
         return reserve_days
 
     # 预约
@@ -268,13 +261,13 @@ class ZWYT(object):
                 "sysKind": 8,
                 "appAccNo": appAccNo,
                 "memberKind": 1,
-                "resvMember": [appAccNo],           # 读者个人编号
-                "resvBeginTime": date['start'],     # 预约起始时间
-                "resvEndTime": date['end'],         # 预约结束时间
+                "resvMember": [appAccNo],  # 读者个人编号
+                "resvBeginTime": date['start'],  # 预约起始时间
+                "resvEndTime": date['end'],  # 预约结束时间
                 "testName": "",
                 "captcha": "",
                 "resvProperty": 0,
-                "resvDev": [self.resvDev],          # 座位编号
+                "resvDev": [self.resvDev],  # 座位编号
                 "memo": ""
             }
 
@@ -288,24 +281,24 @@ class ZWYT(object):
             # 预约成功
             if message == '新增成功':
                 print(
-                    "\033[0;32m" + 
-                    f"\n预约成功: {self.name} 预约了 {devName}: {json_data['resvBeginTime']} ~ {json_data['resvEndTime']}" + 
+                    "\033[0;32m" +
+                    f"\n预约成功: {self.name} 预约了 {devName}: {json_data['resvBeginTime']} ~ {json_data['resvEndTime']}" +
                     "\033[0m"
                 )
 
             # 该时间段有预约了
             elif re.findall('当前时段有预约', message):
-                print("\033[0;33m" + f"{self.name} 这个时段已经有了预约: {json_data['resvBeginTime']} ~ {json_data['resvEndTime']}" + "\033[0m")
-              
+                print(
+                    "\033[0;33m" + f"{self.name} 这个时段已经有了预约: {json_data['resvBeginTime']} ~ {json_data['resvEndTime']}" + "\033[0m")
+
             # 预约失败---可选择向微信推送预约失败的信息, 比如可以使用 pushplus 平台
             else:
                 print(
-                    "\033[0;31m" + 
+                    "\033[0;31m" +
                     f"\n{self.name}, 时间段: {json_data['resvBeginTime']} 预约失败, {message}" +
                     "\033[0m"
                 )
-                # self.pushplus(f"{self.name}预约失败", message)
-            
+
     # 签到
     def sign(self, devName):
         """
@@ -360,8 +353,7 @@ class ZWYT(object):
         # 已经签到过
         elif message == '用户已签到，请勿重复签到':
             print("\033[0;33m" + f'\n {self.name} {message}\n' + "\033[0m")
-        
+
         # 签到失败
         else:
             print("\033[0;31m" + f"\n{self.name}--签到失败--{message}\n" + "\033[0m")
-            self.pushplus(f"{self.name}签到失败", message)
