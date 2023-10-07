@@ -16,5 +16,5 @@ if __name__ == '__main__':
                 yy.reserve(stu['devName'])  
             except Exception as e:
                 print(e)
-                yy.pushplus(stu['name']+"预约失败", e)
+                yy.pushplus(f"{stu['name']} {stu['devName']} 预约失败", e)
                 continue
