@@ -28,7 +28,8 @@ class ZWYT(object):
             'seatmenu': 'http://libbooking.gzhu.edu.cn/ic-web/seatMenu',  # 获取 roomId
             'findaddress': 'http://libbooking.gzhu.edu.cn/ic-web/auth/address',
             'get_location': 'http://libbooking.gzhu.edu.cn/authcenter/toLoginPage',
-            'userinfo': 'http://libbooking.gzhu.edu.cn/ic-web/auth/userInfo'  # 获取用户信息
+            'userinfo': 'http://libbooking.gzhu.edu.cn/ic-web/auth/userInfo',  # 获取用户信息
+            'pushplus': 'http://www.pushplus.plus/send'  # pushplus
         }
 
         # xpath 匹配规则
