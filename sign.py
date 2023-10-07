@@ -15,5 +15,6 @@ if __name__ == '__main__':
             yy.sign(stu['devName'])
         except Exception as e:
             print(e)
-            yy.pushplus(f"{stu['name']} {stu['devName']} 签到失败", e)
+            if stu['pushplus']:
+                yy.pushplus(f"{stu['name']} {stu['devName']} 签到失败", e)
             continue
