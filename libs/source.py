@@ -116,10 +116,10 @@ class ZWYT(object):
         if filename[0] == 'M':
             json_path = Path().cwd() / 'json/琴房.json'  # 准备打开的 json 文件的路径
         else:
-            json_path = Path().cwd() / f'json/{filename}.json'  # 准备打开的 json 文件的路径
+            json_path = Path().cwd() / f'json/{filename.lower()}.json'  # 准备打开的 json 文件的路径, 先用小写
 
-            if not json_path.exists():
-                json_path = Path().cwd() / f'json/{filename.lower()}.json'  # 准备打开的 json 文件的路径
+            if json_path.exists() is False:
+                json_path = Path().cwd() / f'json/{filename.upper()}.json'  # 准备打开的 json 文件的路径, 再用大写
 
         # 打开对应的 json 文件
         with open(json_path, mode='r', encoding='utf-8') as f:
