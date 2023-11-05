@@ -109,7 +109,7 @@
       * `-t .`: 表示将依赖安装置该目录下
       * `-r `: 指定对应的 requirements.txt 文件, 去安装这个文件里面的包     
       ~~~shell
-      pip install -t . -r requirements.txt
+      pip install -t . -r requirements.txt -i https://pypi.tuna.tsinghua.edu.cn/simple
       ~~~
       ![image](https://github.com/ChaXxl/GZHU_LibraryAutoReserve_sign/assets/40326898/dba1416d-9504-44ad-8b87-96b457b27e3f)
       
