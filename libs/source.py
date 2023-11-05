@@ -127,7 +127,7 @@ class ZWYT(object):
 
         # 遍历获取对应座位的 devId
         for i in json_data.get('data'):
-            if i.get('devName') == devName:
+            if i.get('devName') == devName.upper() or i.get('devName') == devName.lower():
                 if tag == 'reserve':  # 预约--去json文件获取resvId
                     resvDev = i.get('devId')
                 elif tag == 'sign':  # 签到--去json文件获取devSn
