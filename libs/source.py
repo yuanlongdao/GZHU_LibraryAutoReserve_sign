@@ -1,5 +1,6 @@
 import json
 import re
+import sys
 import typing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -62,9 +63,20 @@ class ZWYT(object):
         # 日志文件用 年-月-日 命名
         logFile = Path(logDir / f'{datetime.now().year}-{datetime.now().month}-{datetime.now().day}.log')
 
-        # 日志保存. 打印格式、4 天清理一次日志
-        logger.add(logFile, format='{time: YYYY-MM-DD HH:mm:ss.SSS} {level} {message}', retention='96h')
-
+        # 日志打印、保存。 保存位置、打印格式、颜色、4天清理一次日志
+        logger.configure(handlers=[
+            {
+                'sink': sys.stderr,
+                'format': '<lvl>{time:YYYY-MM-DD HH:mm:ss.SSS}</> <lvl>|</> <lvl>{message}</>',
+                'colorize': True
+            },
+            {
+                'sink': logFile,
+                'format': '<lvl>{time:YYYY-MM-DD HH:mm:ss.SSS}</> <lvl>|</> <lvl>{message}</>',
+                'colorize': False,
+                'retention': '4 days'
+            },
+        ])
 
     # pushplus 推送消息到微信
     def pushplus(self, title, content):
