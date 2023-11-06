@@ -1,7 +1,7 @@
 .idea
 .DS_Store
 ./libs/.DS_Store
-./logs
 /venv/
 /libs/info2.py
 /libs/__pycache__/
+/logs/
