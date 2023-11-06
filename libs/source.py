@@ -253,7 +253,7 @@ class ZWYT(object):
         return reserve_days
 
     # 预约
-    def reserve(self, devName):
+    def reserve(self, devName: str):
         """
         预约
         """
