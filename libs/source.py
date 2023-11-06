@@ -3,10 +3,11 @@ import re
 import typing
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
-
-import httpx  # pip install httpx
 from urllib.parse import unquote
-from lxml import etree  # pip install lxml
+
+import httpx
+from loguru import logger
+from lxml import etree
 
 from .rsa import RSA  # 外部文件
 
@@ -52,6 +53,18 @@ class ZWYT(object):
 
         # 初始化请求连接对象
         self.rr = httpx.Client()
+
+        # 如果 logs 文件夹不存在则创建
+        logDir = Path(__file__).parent.parent / 'logs'
+        if logDir.exists() is False:
+            logDir.mkdir()
+
+        # 日志文件用 年-月-日 命名
+        logFile = Path(logDir / f'{datetime.now().year}-{datetime.now().month}-{datetime.now().day}.log')
+
+        # 日志保存. 打印格式、4 天清理一次日志
+        logger.add(logFile, format='{time: YYYY-MM-DD HH:mm:ss.SSS} {level} {message}', retention='96h')
+
 
     # pushplus 推送消息到微信
     def pushplus(self, title, content):
@@ -294,27 +307,18 @@ class ZWYT(object):
 
             # 预约成功
             if message == '新增成功':
-                print(
-                    "\033[0;32m" +
-                    f"\n预约成功: {self.name} 预约了 {devName}: {json_data['resvBeginTime']} ~ {json_data['resvEndTime']}" +
-                    "\033[0m"
-                )
+                logger.success(f"\n预约成功: {self.name} 预约了 {devName}: {json_data['resvBeginTime']} ~ {json_data['resvEndTime']}" )
 
             # 该时间段有预约了
             elif re.findall('当前时段有预约', message):
-                print(
-                    "\033[0;33m" + f"{self.name} 这个时段已经有了预约: {json_data['resvBeginTime']} ~ {json_data['resvEndTime']}" + "\033[0m")
+                logger.warning(f"{self.name} 这个时段已经有了预约: {json_data['resvBeginTime']} ~ {json_data['resvEndTime']}")
 
             # 预约失败---可选择向微信推送预约失败的信息, 比如可以使用 pushplus 平台
             else:
-                print(
-                    "\033[0;31m" +
-                    f"\n{self.name}, 时间段: {json_data['resvBeginTime']} 预约失败, {message}" +
-                    "\033[0m"
-                )
+                logger.error(f"\n{self.name} 时间段: {json_data['resvBeginTime']} 预约失败 {message}")
 
     # 签到
-    def sign(self, devName):
+    def sign(self, devName: str):
         """
         签到
         """
