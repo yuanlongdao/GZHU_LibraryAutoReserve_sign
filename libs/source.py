@@ -341,7 +341,7 @@ class ZWYT(object):
 
         # 预约座位的编号不对
         if res1_data.get('data') is None:
-            print("\033[0;31m" + f"\n{self.name}" + f"{res1_data.get('message')}" + "\033[0m")
+            logger.warning(f"\n{self.name}" + f"{res1_data.get('message')}")
 
             # 预约的不是当前设备, 则签到对应的座位
             devName = re.findall("-(.*)处", res1_data.get('message'))[0]
@@ -366,12 +366,12 @@ class ZWYT(object):
 
         # 签到成功
         if message == '操作成功':
-            print("\033[0;32m" + f"\n{self.name} 签到成功--{message}\n" + "\033[0m")
+            logger.success(f"\n{self.name} 签到成功--{message}\n")
 
         # 已经签到过
         elif message == '用户已签到，请勿重复签到':
-            print("\033[0;33m" + f'\n {self.name} {message}\n' + "\033[0m")
+            logger.warning(f'\n {self.name} {message}\n')
 
         # 签到失败
         else:
-            print("\033[0;31m" + f"\n{self.name}--签到失败--{message}\n" + "\033[0m")
+            logger.error(f"\n{self.name}--签到失败--{message}\n")
