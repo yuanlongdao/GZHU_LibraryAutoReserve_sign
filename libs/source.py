@@ -319,7 +319,7 @@ class ZWYT(object):
 
             # 预约成功
             if message == '新增成功':
-                logger.success(f"\n预约成功: {self.name} 预约了 {devName}: {json_data['resvBeginTime']} ~ {json_data['resvEndTime']}" )
+                logger.success(f"预约成功: {self.name} 预约了 {devName}: {json_data['resvBeginTime']} ~ {json_data['resvEndTime']}" )
 
             # 该时间段有预约了
             elif re.findall('当前时段有预约', message):
@@ -327,7 +327,7 @@ class ZWYT(object):
 
             # 预约失败---可选择向微信推送预约失败的信息, 比如可以使用 pushplus 平台
             else:
-                logger.error(f"\n{self.name} 时间段: {json_data['resvBeginTime']} 预约失败 {message}")
+                logger.error(f"{self.name} 时间段: {json_data['resvBeginTime']} 预约失败 {message}")
 
     # 签到
     def sign(self, devName: str):
@@ -353,7 +353,7 @@ class ZWYT(object):
 
         # 预约座位的编号不对
         if res1_data.get('data') is None:
-            logger.warning(f"\n{self.name}" + f"{res1_data.get('message')}")
+            logger.warning(f"{self.name}" + f"{res1_data.get('message')}")
 
             # 预约的不是当前设备, 则签到对应的座位
             devName = re.findall("-(.*)处", res1_data.get('message'))[0]
@@ -378,12 +378,12 @@ class ZWYT(object):
 
         # 签到成功
         if message == '操作成功':
-            logger.success(f"\n{self.name} 签到成功--{message}\n")
+            logger.success(f"{self.name} 签到成功--{message}")
 
         # 已经签到过
         elif message == '用户已签到，请勿重复签到':
-            logger.warning(f'\n {self.name} {message}\n')
+            logger.warning(f'{self.name} {message}')
 
         # 签到失败
         else:
-            logger.error(f"\n{self.name}--签到失败--{message}\n")
+            logger.error(f"{self.name}--签到失败--{message}")
