@@ -199,7 +199,7 @@ class ZWYT(object):
         ticket = re.findall('ticket=(.*)', location)[0]  # 获取ticket
 
         url = f"""{re.findall('service=(.*)', url)[0]}?ticket={ticket}"""
-        location = self.rr.get(url=url).headers.get('Location', timeout=60)
+        location = self.rr.get(url=url, timeout=60).headers.get('Location')
         location = unquote(location)
 
         unitoken = re.findall('uniToken=(.*)', str(location))[0]  # 获取unitoken
@@ -236,7 +236,7 @@ class ZWYT(object):
 
         # 从data里面获取一个url
         url = self.urls['findaddress']
-        address = self.rr.get(url=url, params=params).json().get('data', timeout=60)
+        address = self.rr.get(url=url, params=params, timeout=60).json().get('data')
 
         # 将上面获取到的url 作为请求参数
         url = url = f"{self.urls['get_location']}?redirectUrl={address}"
