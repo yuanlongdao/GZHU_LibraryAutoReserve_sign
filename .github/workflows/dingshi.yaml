@@ -24,9 +24,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install datetime
-          pip install pathlib
-          pip install urllib
+          pip install httpx
+          pip install loguru
+          pip install lxml
 
       - name: Run Reserve
         run: python reserve.py
