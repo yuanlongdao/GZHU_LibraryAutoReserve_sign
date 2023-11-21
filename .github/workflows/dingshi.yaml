@@ -31,3 +31,5 @@ jobs:
       - name: Run Reserve
         run: python reserve.py
 
+      - name: Get current time
+        run: echo "Current time is ${{ github.event_name }}_at }}"
