@@ -14,8 +14,7 @@ def main(*args, **kwargs):
 
             # 调用预约函数预约，传入预约座位号
             yy.reserve(stu['devName'])
-            if stu['pushplus']:
-                yy.pushplus(f"{stu['name']} {stu['devName']} 预约成功"," 预约成功")
+
         except Exception as e:
             print(e)
             if stu['pushplus']:
