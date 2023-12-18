@@ -199,6 +199,7 @@ class ZWYT(object):
         ticket = re.findall('ticket=(.*)', location)[0]  # 获取ticket
 
         url = f"""{re.findall('service=(.*)', url)[0]}?ticket={ticket}"""
+        url = unquote(url)
         location = self.rr.get(url=url, timeout=60).headers.get('Location')
         location = unquote(location)
 
