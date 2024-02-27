@@ -17,8 +17,8 @@ def main(*args, **kwargs):
 
         except Exception as e:
             print(e)
-            if stu['pushplus']:
-                yy.pushplus(f"{stu['name']} {stu['devName']} 预约失败", e)
+            # if stu['pushplus']:
+            #     yy.pushplus(f"{stu['name']} {stu['devName']} 预约失败", e)
             continue
 
 
